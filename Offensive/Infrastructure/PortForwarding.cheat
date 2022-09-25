@@ -1,0 +1,9 @@
+% chisel, port forwarding
+# server command
+chisel server -p <listening port> --reverse
+
+# client command
+chisel client <local IP>:<Port> R:<local Port>:<remote IP>:<remote port>
+
+# client SOCKS5 listener on 1080
+chisel client <local IP>:<port> R:socks

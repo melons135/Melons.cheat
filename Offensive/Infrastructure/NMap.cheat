@@ -1,0 +1,6 @@
+% nmap
+# scan limited ports
+nmap -Pn -n -sS -p 21-23,25,53,111,137,139,445,80,443,8443,8080 --min-hostgroup 255 --min-rtt-timeout 0ms --max-rtt-timeout 100ms --max-retries 1 --max-scan-delay 0 --min-rate 2000 -oA <output file> -vvv --open -iL <IPLIST>
+
+# scan all ports
+nmap -Pn -n -sS -p- -sV --min-hostgroup 255 --min-rtt-timeout 25ms --max-rtt-timeout 100ms --max-retries 1 --max-scan-delay 0 --min-rate 1000 -oA <output file> -vvv --open -iL <AliveHosts>
