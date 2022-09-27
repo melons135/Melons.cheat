@@ -7,3 +7,24 @@ chisel client <local IP>:<Port> R:<local Port>:<remote IP>:<remote port>
 
 # client SOCKS5 listener on 1080
 chisel client <local IP>:<port> R:socks
+
+% ssh, port forwarding
+# Local port forwarding 
+ssh <username>@<SSH IP> -L <Local address>:<local port>:<destinationIP>:<dest port>
+
+# Reverse port forwarding 
+ssh <username>@<SSH IP> -R <Local address>:<local port>:<destinationIP>:<dest port>
+
+# remote port forwarding
+ssh -N -R <Local address>:<local port>:<destinationIP>:<dest port> <SSH username>@<SSH IP>
+
+#SSH Dynamic Port Forwarding
+ssh -N -D <Local address>:<local port> <SSH username>@<SSH IP> -p <remote port>
+
+% sshuttle, port forwarding
+sshuttle -r <username>@<SSH IP> <network address/CIDR>
+
+% netcat, nc, port forwarding
+ncat -vv --listen <port> --proxy-type <nc-proxy-type>
+
+$ nc-proxy-type: list=( socks4 socks5 http ) printf '%s\n' "${list[@]}"
