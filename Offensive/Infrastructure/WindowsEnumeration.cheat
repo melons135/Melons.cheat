@@ -1,0 +1,16 @@
+% windows, post exploit, enumberation, cmd
+
+# Check insalled patches with cmd
+wmic qfe Caption,Description,HotFixID,InstalledOn
+
+# List attached drives cmd
+wmic logicaldisk get caption,description,providername
+
+# All current user permissions
+whoami /all
+
+# Other user informaiton
+net user <name>
+
+# Get group members
+net localgroup <name>
