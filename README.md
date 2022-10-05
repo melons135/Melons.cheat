@@ -9,6 +9,10 @@ This is my personal repo for navi cheatsheet file to be used with navi found her
 - [ ] Impacket
 - [ ] Nmap
 
+add from:
+- [ ] https://github.com/swisskyrepo/PayloadsAllTheThings
+
+
 # Syntax
 As detailed by the documentation the synax used is as follows:
 ```% git, code
