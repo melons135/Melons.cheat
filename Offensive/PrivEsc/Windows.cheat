@@ -1,4 +1,4 @@
-% windows, post exploit, enumberation, cmd
+% windows, post exploit, enumeration, cmd
 
 # Check insalled patches with cmd
 wmic qfe Caption,Description,HotFixID,InstalledOn
