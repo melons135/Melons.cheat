@@ -8,6 +8,9 @@ This is my personal repo for navi cheatsheet file to be used with navi found her
 - [ ] WPScan
 - [ ] Impacket
 - [ ] Nmap
+- [ ] https://github.com/r1cksec/cheatsheets/tree/main/windows
+- [ ] https://github.com/r1cksec/cheatsheets/tree/main/linux
+- [ ] 
 
 add from:
 - [ ] https://github.com/swisskyrepo/PayloadsAllTheThings
