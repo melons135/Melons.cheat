@@ -10,7 +10,8 @@ This is my personal repo for navi cheatsheet file to be used with navi found her
 - [ ] Nmap
 - [ ] https://github.com/r1cksec/cheatsheets/tree/main/windows
 - [ ] https://github.com/r1cksec/cheatsheets/tree/main/linux
-- [ ] 
+- [ ] https://github.com/l9c/tmux_cheat_sheet_data/blob/master/tmux.json - Convert using jq
+- [ ] https://github.com/l9c/docker_cheat_sheet_data/blob/master/cheats.json - Convert using jq
 
 add from:
 - [ ] https://github.com/swisskyrepo/PayloadsAllTheThings
