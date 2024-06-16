@@ -1,0 +1,8 @@
+ % archive
+
+
+# Extract files from a firmware 
+unblob <firmware_file> 
+
+# Show external dependencies 
+unblob --show-external-dependencies 

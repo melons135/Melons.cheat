@@ -1,0 +1,16 @@
+ % databases
+
+# connect to the local server 
+redis-cli 
+
+# connect to a remote server on the default port (6379) 
+redis-cli -h <ip> -a <password> 
+
+# connect remotely specifying a port 
+redis-cli -h <ip> -p <port> -a <password> 
+
+# connect remotely over tls w/ server certificate 
+redis-cli -h <ip> --tls --cacert <redis_cert_path.pem> 
+
+# connect remotely over tls w/ server & client certificates 
+redis-cli -h <ip> --tls --cacert <redis_cert_path.pem> --cert <redis_user_path.crt> --key <redis_user_private_path.key> 
