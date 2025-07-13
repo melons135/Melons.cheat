@@ -1,0 +1,95 @@
+% ffuf, fuzzing
+# Directory discovery
+ffuf -w <wordlist> -u https://<target>/FUZZ
+
+# Adding classical header (some WAF bypass)
+ffuf -c -w "/opt/host/main.txt:FILE" -H "X-Originating-IP: 127.0.0.1, X-Forwarded-For: 127.0.0.1, X-Remote-IP: 127.0.0.1, X-Remote-Addr: 127.0.0.1, X-Client-IP: 127.0.0.1" -fs 5682,0 -u https://<target>/FUZZ
+
+# match all responses but filter out those with content-size
+ffuf -w <wordlist.txt> -u https://<target>/FUZZ -mc all -fs <content-size> -c -v
+
+# Fuzz Host-header, match HTTP responses.
+ffuf -w <hosts.txt> -u https://<target>/ -H "Host: FUZZ" -mc <response>
+
+# Virtual host discovery (without DNS records)
+ffuf -w <vhost/wordlist> -u https://<target> -H "Host: FUZZ" -fs <content-size>
+
+# Playing with threads and wait
+./ffuf -u https://<target>/FUZZ -w <wordlist.txt> -c -p <wait time> -t <threads>
+
+# GET param fuzzing, filtering for invalid response size (or whatever)
+ffuf -w <paramnames.txt> -u https://<target>/script.php?FUZZ=<test_value> -fs 4242
+
+# GET parameter fuzzing if the param is known (fuzzing values) and filtering out response codes
+ffuf -w <values.txt> -u https://<target>/<page>?<paramiter>=FUZZ -fc <exclude code>
+
+# POST parameter fuzzing
+ffuf -w <postdata.txt> -X POST -d "username=<username>\&password=FUZZ" -u https://<target>/<login-page> -fc <exclude code>
+
+# Fuzz POST JSON data. Match all responses not containing text.
+ffuf -w <entries.txt> -u https://<target>/ -X POST -H "Content-Type: <MIME-Type>" -d '{"name": "FUZZ", "<anotherkey>": "<anothervalue>"}' -fr <inverse match text>
+
+# Recursive
+ffuf -w <wordlist> -u https://<target>/FUZZ -maxtime-job <max-job-time> -recursion -recursion-depth <depth>
+
+% fuzzer, fuzz, gobuster
+
+# gobuster scan classic 
+gobuster dir -u <url> -w <wordlist> 
+
+# gobuster scan pentest classic fuzz 
+gobuster dir -u <url> -w <wordlist> -x json,html,php,txt,xml,md 
+
+# gobuster scan high rate 
+gobuster dir -u <url> -w <wordlist> -t 30 
+
+# gobuster scan with adding extension 
+gobuster dir -u <url> -w <wordlist> -x json,html,php,txt 
+
+% fuzzer, fuzz, wfuzz
+# wfuzz with number on url ( url : http://site/ ) 
+wfuzz -z range,1-1000 -u <url>FUZZ 
+
+# wfuzz with wordlist on url ( url : http://site/ ) 
+wfuzz -z file,<file> -u <url>FUZZ 
+
+# wfuzz on post parameter 
+wfuzz -z file,<file> -X post -u <url> -d 'FUZZ=1' 
+
+% fuzzer, fuzz, dirb
+# dirb commons 
+dirb <url> -w /usr/share/wordlists/dirb/common.txt 
+
+ % fuzzer, fuzz, ffuf
+# ffuf fuzz keyword in url 
+ffuf -w <wordlist> -u <url>/FUZZ 
+
+# ffuf fuzz Host filter response size 
+ffuf -w <wordlist> -u <url> -H "Host: FUZZ" -fs <response_size> 
+
+# ffuf GET parameter fuzzing 
+ffuf -w <wordlist> -u <url>?<param>=FUZZ -fs <response_size> 
+
+# ffuf POST parameter fuzzing and filter response code 401 
+ffuf -w <wordlist> -u <url> -X POST -d "username=admin\&password=FUZZ" -fc 401 
+
+ % fuzzer, fuzz, nikto
+# nikto - first vuln scan 
+nikto -C all -h <url> 
+
+% fuzzer, fuzz, ffuf, dirsearch, gobuster, dirb
+
+# default scan 
+feroxbuster --url <url> 
+
+# default scan with wordlist 
+feroxbuster --url <url> -w <wordlist> 
+
+# Multiple headers 
+feroxbuster -u <url> -H "<header>" "<header>" 
+
+# IPv6, non-recursive scan with INFO-level logging enabled 
+feroxbuster -u <proto|https>://[<ipv6>] --no-recursion -vv 
+        
+# Abort or reduce scan speed to individual directory scans when too many errors have occurred 
+feroxbuster -u <url> --auto-bail 

