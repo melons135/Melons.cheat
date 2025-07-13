@@ -12,8 +12,17 @@ john --wordlist=<wordlist> --format=netntlm <hash_file.txt>
 # NTLMv2 
 john --wordlist=<wordlist> --format=netntlmv2 <hash_file.txt> 
 
-# ssh convert key  
-python /usr/share/john/ssh2john.py <ssh_key> > <ssh_hash> 
+# ssh convert key for cracking
+ssh2john <ssh_key> > <ssh_hash.out> 
 
 # ssh 
 john --wordlist=<wordlist> <ssh_hash> 
+
+# convert zip for cracking
+zip2john <file.zip> > <zip.out>
+
+# convert 7z for cracking
+7z2john <file.7z> > <7z.out>
+
+# convert keepass kdbx for cracking
+keepass2john <file.kdbx> > <kdbx.out>
