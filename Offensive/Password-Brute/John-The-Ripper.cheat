@@ -1,0 +1,19 @@
+% password recovery, password cracking
+
+# LM 
+john --wordlist=<wordlist> --format=lm <hash_file.txt> 
+
+# NTLM 
+john --wordlist=<wordlist> --format=nt <hash_file.txt> 
+
+# NTLMv1 
+john --wordlist=<wordlist> --format=netntlm <hash_file.txt> 
+
+# NTLMv2 
+john --wordlist=<wordlist> --format=netntlmv2 <hash_file.txt> 
+
+# ssh convert key  
+python /usr/share/john/ssh2john.py <ssh_key> > <ssh_hash> 
+
+# ssh 
+john --wordlist=<wordlist> <ssh_hash> 
