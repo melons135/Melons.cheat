@@ -1,5 +1,0 @@
-# dotnet (.net)
-
-
-# DotNetToJScript 
-DotNetToJScript.exe <dll|ExampleAssembly.dll> --lang=Jscript --ver=v4 -o <jscript|runner.js> 

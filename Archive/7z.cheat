@@ -1,5 +1,0 @@
- % archive
-
-
-# 7z create archive with password 
-7z a <archive_name>.7z -p<password> <file> 
