@@ -1,0 +1,43 @@
+% mssql, Microsoft SQL Server, 1433
+
+# connect
+sqsh -S <ip> -U <user> 
+
+# enum
+nmap --script ms-sql-info,ms-sql-empty-password,ms-sql-xp-cmdshell,ms-sql-config,ms-sql-ntlm-info,ms-sql-tables,ms-sql-hasdbaccess,ms-sql-dac,ms-sql-dump-hashes --script-args mssql.instance-port=1433,mssql.username=sa,mssql.password=,mssql.instance-name=MSSQLSERVER -sV -p 1433 <ip> 
+
+# enum sql login
+msfconsole -x "use admin/mssql/mssql_enum_sql_logins; set RHOSTS <ip>; set USER_FILE <user_file>; set PASS_FILE <pass_file>; run" 
+
+# enum configuration setting (xp-cmdshell)
+msfconsole -x "use auxiliary/admin/mssql/mssql_enum; set RHOST <ip>; set password <password>; run" 
+
+# link crawler
+msfconsole -x "use exploit/windows/mssql/mssql_linkcrawler" 
+
+  % mysql, database, db, 3306
+# connect
+mysql -u <user> -p<password> -h <hostname> <database> 
+
+# Create database
+mysql -u <user> -p -e "create database <database> character set UTF8mb4 collate utf8mb4_bin" 
+
+# Export database
+mysqldump -u <user> -p <database> > <path> 
+
+# Import database
+mysql -u <user> -p <database> <path> 
+
+# nmap - mysql enumeration
+nmap -sV -p 3306 --script mysql-audit,mysql-databases,mysql-dump-hashes,mysql-empty-password,mysql-enum,mysql-info,mysql-query,mysql-users,mysql-variables,mysql-vuln-cve2012-2122 <ip> 
+
+% postgres, 5432, 5433
+
+# postgres - connect
+psql -h <host> -U <user> 
+
+# postgres - connect database
+psql -h <ip> -U <user> -d <database> 
+
+# postgres - connect full options
+psql -h <ip> -p <port> -U <user> -W <password> <database> 
