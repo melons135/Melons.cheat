@@ -1,0 +1,28 @@
+% dns,recon,adidns,zone-transfer,nmap,internal,network,domaincontroller,enumeration
+
+# Zone Transfer with dig
+dig @<server_ip> <domain> axfr
+
+# Zone Transfer with nslookup
+nslookup ls -d <domain>
+
+# Extract all DNS records via LDAP (requires domain user)
+adidnsdump -u <domain>\\<user> <domain>
+
+# DNSRecon for subdomain enumeration
+dnsrecon -d <target_domain> -D /usr/share/wordlists/dnsmap.txt -t std --xml <output_file>.xml
+
+# Internal network: DHCP broadcast discovery with Nmap
+nmap --script broadcast-dhcp-discover
+
+# Get domain controllers GC
+dig -t SRV _gc._tcp.<domain>
+
+# Get domain controllers LDAP
+dig -t SRV _ldap._tcp.<domain>
+
+# Get domain controllers Kerberos
+dig -t SRV _kerberos._tcp.<domain>
+
+# Get domain controllers kpasswd
+dig -t SRV _kpasswd._tcp.<domain>
