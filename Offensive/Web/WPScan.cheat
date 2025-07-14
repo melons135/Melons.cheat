@@ -1,1 +1,21 @@
 % wpscan
+# Basic scan
+wpscan --url <URL> -o <OUTFILE.txt>
+
+# General enumeration
+wpscan -e --url <URL> -o <OUTFILE.txt>
+
+# password brute force
+wpscan --url <URL> -U <USERS.txt> -P <PASSWORDS.txt> -o <OUTFILE.txt>
+
+# User enumeration
+wpscan -e u --url <URL> -o <OUTFILE.txt>
+
+# Enumerate everything
+wpscan --url <URL> --enumerate ap,at,au -o <OUTFILE.txt>
+
+# Enumerate vulnerabilities
+wpscan --url <URL> --plugins-detection mixed -o <OUTFILE.txt>
+
+# Check for Specific Vulnerabilities
+wpscan --url <URL> --vulnerable -o <OUTFILE.txt>
