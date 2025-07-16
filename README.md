@@ -3,10 +3,7 @@
 This is my personal repo for navi cheatsheet file to be used with navi found here: https://github.com/denisidoro/navi.
 
 # todo
-
-- [ ] mimikatz
-- [ ] WPScan
-- [ ] Impacket
+- [ ] Add files from https://github.com/denisidoro/cheats/blob/master/featured_repos.txt
 - [ ] Nmap
 - [ ] https://github.com/r1cksec/cheatsheets/tree/main/windows
 - [ ] https://github.com/r1cksec/cheatsheets/tree/main/linux
